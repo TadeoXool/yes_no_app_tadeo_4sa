@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyectoapi/damin/entities/message.dart';
 
-//Punots para luis, Ader, Palbo
-
 class Chatprovider extends ChangeNotifier {
   List<Message> messagetList = [
     Message(text: 'Hola Ader', fromWho: FromWho.me),
