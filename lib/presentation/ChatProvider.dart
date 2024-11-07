@@ -1,41 +1,72 @@
 import 'package:flutter/material.dart';
+import 'package:proyectoapi/config/theme/helpers/get_yes_no_answer.dart';
 import 'package:proyectoapi/damin/entities/message.dart';
+import 'dart:developer' as developer;
 
-class Chatprovider extends ChangeNotifier {
-  List<Message> messagetList = [
-    Message(text: 'Hola Ader', fromWho: FromWho.me),
-    Message(text: '¿Lloraste porque reprobaste topicos?', fromWho: FromWho.me)
+import 'package:proyectoapi/presentation/widgets/chat/her_message_bubble.dart';
+
+class ChatProvider extends ChangeNotifier {
+  List<Message> messageList = [
+    Message(text: 'Hola iridian', fromWho: FromWho.me),
+    Message(text: '¿Lloras porque reprobaste topicos?', fromWho: FromWho.me)
   ];
-  //controlador para manejar la poscion del scroll
+
+// Controlador para manejar la posicion del scroll
   final ScrollController chatScrollController = ScrollController();
 
-  //enviar un mensaje
+//Instancia de la clase GetYesNoAnswer
+  final getYesNoAnswer = GetYesNoAnswer();
 
+  //Enviar un mensaje
   Future<void> sendMessage(String text) async {
-    //El mesaje va ser propio ("me")
-    final newMesagge = Message(text: text, fromWho: FromWho.me);
-    //agrega un nuevo elemento a la lista
-    messagetList.add(newMesagge);
-    //Notifica el provider cambió para que se guarde en el estado
+    // No envia el mensaje si esta vacio
+    if (text.isEmpty) {
+      return;
+    }
+    // El mensaje siempre va aser "me" por que yo lo envio
+    final newMessage = Message(text: text, fromWho: FromWho.me);
+    //Agrega un elemento a la lista ""messageList"
+    messageList.add(newMessage);
+
+    if (text.endsWith('?')) {
+      herReply();
+    }
+
+    print("Cantidad de mensajes en la lista: ${messageList.length}");
+    //Notifica si algo de provider cambio para que se guarde en el estado
     notifyListeners();
-    //para mover el scroll
+
+    //Mueve el scroll
+
     moveScrollToBottom();
   }
-
-  //mover el scroll al ultimo menesaje
+  // Mover el scroll al ultimo mensaje
 
   Future<void> moveScrollToBottom() async {
-    //un pequeño retraso en la animacion para garanizar que simepre
-    //se verá cuando se envien mensajes cortos y rápidos
-    await Future.delayed(const Duration(seconds: 1));
+    if (chatScrollController.hasClients) {
+      // un pequeño atraso en la animacion para garantizar que siempre
+      // se vera aun cuando se envien mensajes cortos y rapidos
+      await Future.delayed(const Duration(seconds: 1));
+      chatScrollController.animateTo(
+          //offset: Posicion de la animacion
+          //maxScrollExtent determina a lo maximo que scroll puede dar
+          chatScrollController.position.maxScrollExtent,
+          //duracion en la animacion
+          duration: const Duration(milliseconds: 300),
 
-    //Ofset: posicion de la animacion
-    //maxScrolExtend determina a lo maximo de el scroll puede dar
-    chatScrollController.animateTo(
-        chatScrollController.position.maxScrollExtent,
-        //duracion de la animación
-        duration: const Duration(milliseconds: 300),
-        //"Rebte" al final de la animación
-        curve: Curves.easeOut);
+          //"rebote" al final de la animacion
+          curve: Curves.easeOut);
+    }
+  }
+
+  Future<void> herReply() async {
+    //Obtener el mensaje de la peticion
+    final HerMessage = await getYesNoAnswer.getAnswer();
+    //Añadir el mensaje de mi crush a la lista
+    messageList.add(HerMessage);
+    //Notifica si algo de provider cambio para el estado
+    notifyListeners();
+    //Mueve el scroll hasta el ultimo mensaje recibido
+    moveScrollToBottom();
   }
 }
