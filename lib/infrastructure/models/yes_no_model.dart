@@ -8,9 +8,10 @@
 //
 //     final yesNoModel = yesNoModelFromJson(jsonString);
 
-import 'package:proyectoapi/damin/entities/message.dart';
+import 'package:proyectoapi/domain/entities/message.dart';
 
 class YesNoModel {
+  //Atributos de clase
   final String answer;
   final bool forced;
   final String image;
@@ -21,18 +22,28 @@ class YesNoModel {
     required this.image,
   });
 
+  //factoryno necesariamente crea una nueva instancia
   factory YesNoModel.fromJsonMap(Map<String, dynamic> json) => YesNoModel(
         answer: json["answer"],
         forced: json["forced"],
         image: json["image"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "answer": answer,
+        "forced": forced,
+        "image": image,
+      };
+
   Message toMessageEntity() => Message(
       //Condicional ternario para darle valor a los mensajes
       text: answer == 'yes'
-          ? 'si'
+          ? 'Si'
           : answer == 'no'
               ? 'No'
               : 'Quizás',
+      //Siempre va a ser ella
       fromWho: FromWho.hers,
+      //Será el gif
       imageUrl: image);
 }
